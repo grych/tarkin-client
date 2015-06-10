@@ -19,4 +19,5 @@
 .tags*
 .gemtags
 .ruby-version
+*.gem
 
