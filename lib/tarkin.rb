@@ -1,12 +1,14 @@
 require 'highline/import'
 require 'yaml'
-require 'wrest'
+
+require 'api_client'
 
 class TarkinClient
   SETTINGS_FILES = ["#{Dir.home}/.tarkin", ".tarkin", "/etc/tarkin"]
   API = "_api/v1"
 
   attr_accessor :settings
+  attr_reader :api_client
 
   # Constructor. Needs to know the Tarkin Server parameters.
   # They can be passed with three differen ways::
@@ -26,7 +28,7 @@ class TarkinClient
   #   # Password for grychu@gmail.com: ********
   #   # TarkinClient <server: http://localhost:3000, authorized: true>
   def initialize(**options)
-    @authorized = false
+    @authorized = false    
     if options[:email] && options[:password] && options[:tarkin_url]
       @settings = options.select { |k,v| [:email, :tarkin_url].include? k }
       @settings[:token] = get_token(@settings[:email], options[:password])
@@ -34,6 +36,7 @@ class TarkinClient
     else
       get_settings
     end
+    @api_client = ApiClient.new(api_url, headers: { "Authorization" => "Token token=#{@settings[:token]}" })
   end
 
   # Returns Hash containing :id, :username and :password
@@ -56,12 +59,12 @@ class TarkinClient
     case path_or_id
     when String
       # full path given
-      u = api_uri["#{path_or_id}.json"]
+      u = "#{path_or_id}.json"
     when Fixnum
       # Item ID given
-      u = api_uri["_password/#{path_or_id}.json"]
+      u = "_password/#{path_or_id}.json"
     end
-    response = u.get
+    response = @api_client.get(u)
     if response.ok?
       response.deserialize
     else
@@ -82,10 +85,6 @@ class TarkinClient
   private
   def api_url
     "#{@settings[:tarkin_url]}/#{API}"
-  end
-
-  def api_uri
-    "#{api_url}".to_uri(default_headers: { "Authorization" => "Token token=#{@settings[:token]}" })
   end
 
   def get_settings
@@ -119,8 +118,10 @@ class TarkinClient
   end
 
   def get_token(email, password)
-    begin 
-      response = "#{api_url}/_authorize.json".to_uri(username: email, password: password).get
+    begin
+      # Login to the system requires basic http authorization
+      client = ApiClient.new(api_url, username: email, password: password)
+      response = client.get('_authorize.json')
     rescue SocketError
       say "<%= color('Cannot connect to server.', BOLD) %> Please retry."
       return nil
@@ -135,7 +136,8 @@ class TarkinClient
   end
 
   def check_connectivity
-    @authorized = api_uri['_ping'].get.ok? unless @authorized
+    # @authorized = api_uri['_ping'].get.ok? unless @authorized
     # @authorized = "#{api_url}/_ping".to_uri.get("", "Authorization" => "Token token=#{@settings[:token]}").ok? unless @authorized
+    @api_client.get("_ping").ok? unless @authorized
   end
 end
