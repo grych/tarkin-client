@@ -1,0 +1,14 @@
+#!/usr/bin/env ruby
+
+require 'tarkin'
+
+client = TarkinClient.new
+
+pwd = ARGV[0]
+
+pwd = pwd.to_i if pwd[/^-?\d+$/]
+begin
+  puts client.password(pwd)['password']
+rescue TarkinClientException => e
+  puts "Not found (#{e.message})"
+end

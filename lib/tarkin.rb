@@ -1,7 +1,9 @@
 require 'highline/import'
 require 'yaml'
 
-require 'api_client'
+require 'arest'
+
+class TarkinClientException < Exception; end
 
 class TarkinClient
   SETTINGS_FILES = ["#{Dir.home}/.tarkin", ".tarkin", "/etc/tarkin"]
@@ -36,7 +38,8 @@ class TarkinClient
     else
       get_settings
     end
-    @api_client = ApiClient.new(api_url, headers: { "Authorization" => "Token token=#{@settings[:token]}" })
+    #@api_client = ARest.new(api_url, headers: { "Authorization" => "Token token=#{@settings[:token]}" })
+    @api_client = ARest.new(api_url, token: @settings[:token])
   end
 
   # Returns Hash containing :id, :username and :password
@@ -68,7 +71,7 @@ class TarkinClient
     if response.ok?
       response.deserialize
     else
-      puts "Can't get password, server returns #{response.code}: #{response.message}"
+      raise TarkinClientException, "Can't get password, server returns #{response.code}: #{response.message}"
     end
   end
 
@@ -120,7 +123,7 @@ class TarkinClient
   def get_token(email, password)
     begin
       # Login to the system requires basic http authorization
-      client = ApiClient.new(api_url, username: email, password: password)
+      client = ARest.new(api_url, username: email, password: password)
       response = client.get('_authorize.json')
     rescue SocketError
       say "<%= color('Cannot connect to server.', BOLD) %> Please retry."

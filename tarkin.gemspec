@@ -10,6 +10,5 @@ Gem::Specification.new do |s|
   s.homepage      = "https://github.com/grych/tarkin-client"
   s.license       = "MIT"
   s.add_runtime_dependency "highline", ">= 1.7.2"
-  s.add_runtime_dependency "json", ">= 1.8.3"
-  s.add_runtime_dependency "activesupport", ">= 3.2.13"
+  s.add_runtime_dependency "arest", ">= 0.9.0"
 end
