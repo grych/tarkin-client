@@ -10,5 +10,9 @@ Gem::Specification.new do |s|
   s.homepage      = "https://github.com/grych/tarkin-client"
   s.license       = "MIT"
   s.add_runtime_dependency "highline", ">= 1.7.2"
-  s.add_runtime_dependency "arest", ">= 0.9.0"
+  s.add_runtime_dependency "arest", ">= 0.9.1.1"
+  # s.add_runtime_dependency "colorize", ">= 0.7.7"
+  s.add_runtime_dependency "command_line_reporter", ">= 3.3.5"
+  s.add_development_dependency "rspec", '~> 3.2', '>= 3.2.0'
+  s.add_development_dependency "bundler", "~> 1.8"
 end

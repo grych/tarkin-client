@@ -15,8 +15,10 @@ class TarkinClient
   # Constructor. Needs to know the Tarkin Server parameters.
   # They can be passed with three differen ways::
   #
-  # * the options hash
+  # * the options hash. Notice that in this case the token will not be stored in the ~/.tarkin file
   #   >> tc = TarkinClient.new email: 'user@example.com', password: 'password0', tarkin_url: 'http://tarkin.tg.pl'
+  #   # TarkinClient <server: http://tarkin.tg.pl, authorized: true>
+  #   >> tc = TarkinClient.new tarkin_url: 'http://tarkin.tg.pl', token: 'Ahoishwqbn32ldhw......'
   #   # TarkinClient <server: http://tarkin.tg.pl, authorized: true>
   #
   # * by reading the stored parameters in settings file (like ~/.tarkin)  
@@ -30,15 +32,18 @@ class TarkinClient
   #   # Password for grychu@gmail.com: ********
   #   # TarkinClient <server: http://localhost:3000, authorized: true>
   def initialize(**options)
-    @authorized = false    
+    @authorized = false  
+    @settings = {}  
     if options[:email] && options[:password] && options[:tarkin_url]
       @settings = options.select { |k,v| [:email, :tarkin_url].include? k }
       @settings[:token] = get_token(@settings[:email], options[:password])
-      save_settings
+    elsif options[:token] && options[:tarkin_url]
+      @settings[:tarkin_url] = options[:tarkin_url]
+      @settings[:token] = options[:token]
     else
       get_settings
+      save_settings
     end
-    #@api_client = ARest.new(api_url, headers: { "Authorization" => "Token token=#{@settings[:token]}" })
     @api_client = ARest.new(api_url, token: @settings[:token])
   end
 
@@ -73,6 +78,37 @@ class TarkinClient
     else
       raise TarkinClientException, "Can't get password, server returns #{response.code}: #{response.message}"
     end
+  end
+
+  # Returns the contant of given directory
+  def ls(path = '/')
+    u = path.strip.chomp.sub(/(\/)+$/,'') # remove trailing slashes
+    u = if u == '' then '_dir.json' else "_dir/#{u}.json" end
+    response = @api_client.get(u)
+    if response.ok?
+      response.deserialize
+    else
+      if response.code == "404"
+        raise TarkinClientException, "No such file or directory"
+      else
+        raise TarkinClientException, "Can't list directory, server returns #{response.code}: #{response.message}"
+      end
+    end
+  end
+
+  # Search for a string
+  def find(term)
+    response = @api_client.get("_find.json", form_data: {term: term})
+    if response.ok?
+      response.deserialize
+    else
+      raise TarkinClientException, "Can't search for '#{term}', server returns #{response.code}: #{response.message}"
+    end
+  end
+
+  # Returns token
+  def token
+    @settings[:token]
   end
 
   # Returns true, if there is a connectivity to the server
@@ -113,7 +149,6 @@ class TarkinClient
       password = ask("Password for #{@settings[:email]}: ") { |q| q.echo = "*" }
       @settings[:token] = get_token(@settings[:email], password)
     end 
-    save_settings
   end
 
   def save_settings
@@ -122,7 +157,6 @@ class TarkinClient
 
   def get_token(email, password)
     begin
-      # Login to the system requires basic http authorization
       client = ARest.new(api_url, username: email, password: password)
       response = client.get('_authorize.json')
     rescue SocketError
@@ -134,7 +168,7 @@ class TarkinClient
       nil
     else
       @authorized = true
-      response.deserialize['token']
+      response.deserialize[:token]
     end
   end
 
