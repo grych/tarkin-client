@@ -79,6 +79,16 @@ class TarkinCommands
     end
   end
 
+  # Returns items only in given directory
+  def items(dir)
+    @client.ls(URI::encode(dir))[:items]
+  end
+
+  # Returns only dirs
+  def dirs(dir)
+    @client.ls(URI::encode(dir))[:directories]
+  end
+
   private
   def max_len(array_or_arrays)
     if array_or_arrays.empty?

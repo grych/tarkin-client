@@ -30,13 +30,53 @@ class TarkinSh < Cmd
       @cd = full_dir args[:args].first
     end
   end
+  def complete_cd(args)
+    commands.dirs(full_dir(@cd)).collect {|x| x[:name]}.select {|x| x.start_with? args}
+  end
 
-  doc :cat, 'Show password
-      aliases: more, less'
+  shortcut 'less', :cat
+  shortcut 'more', :cat
+  shortcut 'get', :cat
+  doc :cat, 'Shows password'
   def do_cat(args)
     args[:args].each do |item|
       commands.cat(full_dir(item))
     end
+  end
+  def complete_cat(args)
+    commands.items(full_dir(@cd)).collect {|x| x[:username]}.select {|x| x.start_with? args}
+  end
+  
+  shortcut 'search', :find
+  doc :find, 'Find for item or directory'
+  def do_find(args)
+    if args[:args].empty?
+      commands.ls @cd, false
+    else
+      commands.find(args[:args])
+    end
+  end
+
+  def do_help(command = nil)
+    command = command[:args].first
+    if command
+      command = translate_shortcut(command)
+      docs.include?(command) ? print_help(command) : no_help(command)
+    else
+      documented_commands.each {|cmd| print_help cmd}
+      print_undocumented_commands if undocumented_commands?
+    end
+  end
+
+  shortcut '!', 'shell'
+  doc :shell, 'Executes a shell.'
+  # Executes a shell, perhaps should only be defined by subclasses.
+  def do_shell(line)
+    line = line[:original]
+    shell = ENV['SHELL']
+    puts shell
+    puts "**#{line}**"
+    line.empty? ?  system(shell) : write(%x(#{line}).strip)
   end
 
   protected
@@ -69,7 +109,8 @@ class TarkinSh < Cmd
   def tokenize_args(args)
     a = if args then args.split else [] end
     { args: a.select {|x| !x.start_with? '-'},
-      options: a.select {|x| x.start_with? '-'}.map {|x| x.sub(/^-/, '')}.join.split('').uniq}
+      options: a.select {|x| x.start_with? '-'}.map {|x| x.sub(/^-/, '')}.join.split('').uniq,
+      original: args}
   end
 
   private

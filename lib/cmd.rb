@@ -449,13 +449,13 @@ class Cmd
       strings.each {|string| @stdout.write string}
     end
 
-    shortcut '!', 'shell'
-    doc :shell, 'Executes a shell.'
-    # Executes a shell, perhaps should only be defined by subclasses.
-    def do_shell(line)
-      shell = ENV['SHELL']
-      line ? write(%x(#{line}).strip) : system(shell)
-    end
+    # shortcut '!', 'shell'
+    # doc :shell, 'Executes a shell.'
+    # # Executes a shell, perhaps should only be defined by subclasses.
+    # def do_shell(line)
+    #   shell = ENV['SHELL']
+    #   line ? write(%x(#{line}).strip) : system(shell)
+    # end
 
     # Takes care of collecting the current command and its arguments if any and
     # dispatching the appropriate command.
