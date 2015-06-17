@@ -4,72 +4,8 @@ require 'optparse'
 require 'highline/import'
 require 'open-uri'
 include CommandLineReporter if require 'command_line_reporter'
-
-def max_len(array_or_arrays)
-  if array_or_arrays.empty?
-    nil
-  else
-    array_or_arrays.max_by{|x| x.first.length}.first.length
-  end
-end
-
-def columns(array_or_arrays)
-  screen_x = HighLine::SystemExtensions.terminal_size.first
-  (screen_x / (max_len(array_or_arrays) + 1.0)).floor
-end
-
-def ls(client, path, long)
-  list = client.ls(URI::encode(path))
-  # pp list
-  if long
-    all = (list[:directories].collect{|dir| ["#{dir[:name]}/", 'blue', dir[:created_at], dir[:updated_at]]} +
-          list[:items].collect{|item| [item[:username], 'white', item[:created_at], item[:updated_at]]}).sort
-    unless all.empty?
-      cols = 3
-      len = max_len(all)
-      table border: false do
-        all.each do |thing|
-          row do
-            column thing[2].to_time.strftime('%Y-%m-%d %T'), width: 24
-            column thing[3].to_time.strftime('%Y-%m-%d %T'), width: 24
-            column thing[0], width: len, color: thing[1]
-          end
-        end
-      end
-    end
-  else
-    # all contains directories and users, a list of list - item and display color: [[dir1, 'blue'], [user1, 'white']]
-    # reversed because we will be poping the table
-    all = (list[:directories].collect{|dir| ["#{dir[:name]}/", 'blue']} + list[:items].collect{|item| [item[:username], 'white']}).sort.reverse
-    unless all.empty?
-      cols = columns(all)
-      rows = all.count / cols + ( all.count % cols == 0 ? 0 : 1 )
-      len = max_len(all)
-
-      table border: false do
-        rows.times do
-          row do
-            cols.times do
-              item = all.pop
-              column(item && item.first , width: len, color: item && item.last)
-            end
-          end
-        end
-      end
-    end
-  end
-end
-
-def find(client, term)
-  list = client.find(term).sort_by {|x| x[:label]}
-  list.each do |thing|
-    if thing[:redirect_to].include?('#')
-      puts thing[:label].white
-    else
-      puts thing[:label].blue
-    end
-  end
-end
+require 'tarkin_commands'
+require 'tarkin_sh'
 
 options = {}
 OptionParser.new do |opts|
@@ -96,10 +32,14 @@ end.parse!
 paths = ARGV
 
 client = TarkinClient.new
+commands = TarkinCommands.new(client)
+
 if options[:ls]
-  ls(client, options[:ls], options[:long])
+  commands.ls(options[:ls], options[:long])
 elsif options[:find]
-  find(client, options[:find])
+  commands.find(options[:find])
+elsif paths.empty?
+  TarkinSh.start client, commands
 else
   paths.each do |pwd|
     if pwd[/^-?\d+$/]
@@ -108,7 +48,7 @@ else
       pwd = URI::encode(pwd)
     end
     begin
-      puts client.password(pwd)[:password]
+      commands.cat(pwd)
     rescue TarkinClientException => e
       puts "Not found (#{e.message})"
     end

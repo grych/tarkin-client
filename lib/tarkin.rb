@@ -3,7 +3,7 @@ require 'yaml'
 
 require 'arest'
 
-class TarkinClientException < Exception; end
+class TarkinClientException < StandardError; end
 
 class TarkinClient
   SETTINGS_FILES = ["#{Dir.home}/.tarkin", ".tarkin", "/etc/tarkin"]
