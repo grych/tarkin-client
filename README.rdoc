@@ -2,6 +2,9 @@
 
 {Tarkin Team Password Manager}[http://tarkin.tg.pl] command line client and Ruby client library. Find out the Tarkin Server source code on https://github.com/grych/tarkin
 
+=== Teaser
+http://tg.pl/tarkin/client_preview.gif
+
 === Ruby Client
 {<img src="https://badge.fury.io/rb/tarkin.svg" alt="Gem Version" />}[http://badge.fury.io/rb/tarkin]
 

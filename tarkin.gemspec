@@ -1,7 +1,7 @@
 Gem::Specification.new do |s|
   s.name          = 'tarkin'
-  s.version       = '0.9.3.0'
-  s.date          = '2015-06-05'
+  s.version       = '0.9.4.0'
+  s.date          = '2015-06-18'
   s.summary       = "Tarkin client"
   s.description   = "Tarkin Team Password Manager client, command line and shell"
   s.authors       = ["Tomek Gryszkiewicz"]
