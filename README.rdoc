@@ -129,10 +129,61 @@ Command <tt>ls</tt> shows directory contents, like in the Shell:
     http://tarkin.tg.pl/> ls
     db/      unix/    windows/                                                                                                                      
     http://tarkin.tg.pl/> ls -l
-    2015-06-07 12:35:00    2015-06-07 12:35:00    db/        Databases                                                                               
-    2015-06-07 12:39:52    2015-06-07 13:08:05    unix/      Unix and linux servers                                                                  
-    2015-06-07 13:03:53    2015-06-07 13:08:14    windows/   Windows servers                                                                         
+    2015-06-07 12:35:00    2015-06-07 12:35:00    db/        Databases 
+    2015-06-07 12:39:52    2015-06-07 13:08:05    unix/      Unix and linux servers
+    2015-06-07 13:03:53    2015-06-07 13:08:14    windows/   Windows servers 
     http://tarkin.tg.pl/> ls -l db/prod/oracle
-    2015-06-07 12:36:56    2015-06-07 12:36:56    C84PROD/   Production                                                                              
-    2015-06-07 12:38:27    2015-06-07 12:38:27    scott      The same user in all production databases                                               
- 
+    2015-06-07 12:36:56    2015-06-07 12:36:56    C84PROD/   Production 
+    2015-06-07 12:38:27    2015-06-07 12:38:27    scott      The same user in all production databases 
+
+<tt>cd</tt> and <tt>pwd</tt> works as expected - changes current directory and prints working directory:
+
+    http://tarkin.tg.pl/> cd unix
+    http://tarkin.tg.pl/unix> ls
+    oracle
+    http://tarkin.tg.pl/unix> cd /db/prod/oracle
+    http://tarkin.tg.pl/db/prod/oracle> ls
+    C84PROD/ scott                                                                                                                                  
+    http://tarkin.tg.pl/db/prod/oracle> pwd
+    /db/prod/oracle
+
+To view the password, use <tt>cat</tt> command:
+
+    http://tarkin.tg.pl/db/prod/oracle> cat /db/prod/oracle/scott
+    t1ger
+    http://tarkin.tg.pl/db/prod/oracle> cat scott
+    t1ger
+
+To search, launch <tt>find</tt>. As usual, you may use wildcard in the search:
+
+    http://tarkin.tg.pl/db/prod/oracle> find sys
+    /db/prod/oracle/C84PROD/sys
+    /db/prod/oracle/C84PROD/sysadm
+
+Tarkin Shell stores the current directory and last 100 lines of history in ~/.tarkin_sh file.
+
+== Author
+This software is written by Tomek 'Grych' Gryszkiewicz. Do not hestitate to contact me at mailto:grych@tg.pl or visit {my web page}[http://www.tg.pl].
+
+== License
+The MIT License (MIT)
+
+Copyright (c) 2015 Tomek Gryszkiewicz <grych@tg.pl>
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
