@@ -73,6 +73,8 @@ To search for directories and items, use #find. You may use wildcars (*) in sear
 
 === Command-line client
 
+http://tg.pl/tarkin/client_preview.png
+
 With gem it cames the command line tool to help you quick retrieve your password from the Shell without dealing with web browsers.
 
     $ tarkin --help
@@ -122,4 +124,15 @@ Without any parameters, tarkin command-line tool runs the interactive shell, whe
     $ tarkin
     http://tarkin.tg.pl/> 
 
-Command `ls` 
+Command <tt>ls</tt> shows directory contents, like in the Shell:
+
+    http://tarkin.tg.pl/> ls
+    db/      unix/    windows/                                                                                                                      
+    http://tarkin.tg.pl/> ls -l
+    2015-06-07 12:35:00    2015-06-07 12:35:00    db/        Databases                                                                               
+    2015-06-07 12:39:52    2015-06-07 13:08:05    unix/      Unix and linux servers                                                                  
+    2015-06-07 13:03:53    2015-06-07 13:08:14    windows/   Windows servers                                                                         
+    http://tarkin.tg.pl/> ls -l db/prod/oracle
+    2015-06-07 12:36:56    2015-06-07 12:36:56    C84PROD/   Production                                                                              
+    2015-06-07 12:38:27    2015-06-07 12:38:27    scott      The same user in all production databases                                               
+ 
