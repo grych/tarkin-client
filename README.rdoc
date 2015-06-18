@@ -1,6 +1,6 @@
 == Tarkin client
 
-{Tarkin Team Password Manager}(http://tarkin.tg.pl) command line client and Ruby client library. Find out the Tarkin Server on https://github.com/grych/tarkin
+{Tarkin Team Password Manager}[http://tarkin.tg.pl] command line client and Ruby client library. Find out the Tarkin Server on https://github.com/grych/tarkin
 
 === Ruby Client
 
