@@ -1,5 +1,5 @@
 # From: https://github.com/hamxiaoz/cmd
-# minor fixed to work with > 1.9.3 by Tomek 'Grych' Gryszkiewicz <grych@tg.pl>
+# minor fixed to work with >= 1.9.3 by Tomek 'Grych' Gryszkiewicz <grych@tg.pl>
 #
 
 READLINE_SUPPORTED = (require 'readline'; true) rescue false

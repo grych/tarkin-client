@@ -1,4 +1,125 @@
 == Tarkin client
 
-Tarkin Team Password Manager command line client and gem
+{Tarkin Team Password Manager}(http://tarkin.tg.pl) command line client and Ruby client library. Find out the Tarkin Server on https://github.com/grych/tarkin
 
+=== Ruby Client
+
+==== Installation
+
+    gem install tarkin
+    >> require 'tarkin'
+    #> true
+
+==== Constructor
+
+TarkinClient object may be initialized with given credentials:
+
+    >> tc = TarkinClient.new username:'user@example.com', password: 'password0', tarkin_url: 'http://tarkin.tg.pl'
+    #> TarkinClient <server: http://tarkin.tg.pl, authorized: true>
+
+or without it. In this case it will ash for credentials from stdin:
+
+    >> tc = TarkinClient.new
+    Your Tarkin server URL: |http://tarkin.tg.pl| http://tarkin.tg.pl
+    Your Tarkin account email: |user@example.com| user@example.com
+    Password for user@example.com: *********
+    #> TarkinClient <server: http://tarkin.tg.pl, authorized: true>
+
+in this case it stores the credentials (as client token, no passwords are stored there, even in crypted form!) in file ~/.tarkin. So, for the next run it takes credentials from that file:
+
+    >> tc = TarkinClient.new
+    #> TarkinClient <server: http://tarkin.tg.pl, authorized: true>
+
+==== Usage
+
+To read the password, use #password with full path to the password item on Tarkin Server or the Item ID (if you know it):
+
+    >> tc.password '/db/prod/oracle/scott'
+    #> {:id=>6, :username=>"scott", :password=>"t1ger"}
+    >> tc.password 6
+    #> {:id=>6, :username=>"scott", :password=>"t1ger"}
+
+To list the directory content, use #ls with full path to directory on Tarkin Server, defaults to root:
+
+    >> tc.ls
+    #> {:directories=>
+      [{:name=>"db", :id=>9, :created_at=>"2015-06-07T10:35:00.532Z", :updated_at=>"2015-06-07T10:35:00.532Z", :description=>"Databases"},
+       {:name=>"unix",
+        :id=>15,
+        :created_at=>"2015-06-07T10:39:52.294Z",
+        :updated_at=>"2015-06-07T11:08:05.447Z",
+        :description=>"Unix and linux servers"},
+       {:name=>"windows",
+        :id=>18,
+        :created_at=>"2015-06-07T11:03:53.693Z",
+        :updated_at=>"2015-06-07T11:08:14.630Z",
+        :description=>"Windows servers"}],
+     :items=>[]}
+    >> tc.ls '/db/prod/oracle'
+    #> {:directories=>
+      [{:name=>"C84PROD", :id=>14, :created_at=>"2015-06-07T10:36:56.463Z", :updated_at=>"2015-06-07T10:36:56.463Z", :description=>"Production"}],
+     :items=>
+      [{:id=>6,
+        :username=>"scott",
+        :created_at=>"2015-06-07T10:38:27.981Z",
+        :updated_at=>"2015-06-07T10:38:27.981Z",
+        :description=>"The same user in all production databases"}]}
+
+To search for directories and items, use #find. You may use wildcars (*) in search:
+
+    >> tc.find 'sys'
+    #> [{:label=>"/db/prod/oracle/C84PROD/sys", :redirect_to=>"/db/prod/oracle/C84PROD#4"},
+     {:label=>"/db/prod/oracle/C84PROD/sysadm", :redirect_to=>"/db/prod/oracle/C84PROD#5"}]
+
+=== Command-line client
+
+With gem it cames the command line tool to help you quick retrieve your password from the Shell without dealing with web browsers.
+
+    $ tarkin --help
+    Usage: tarkin [options] [PATH TO PASSWORD*]
+    Client for Tarkin Team Password Manager: https://github.com/grych/tarkin
+    Options:
+        -l, --ls PATH                    Lists the directory
+        -f, --find TERM                  Search for items and directories, may use asterisks *
+        -x, --long                       Long listing (like ls -l)
+    Examples:
+    tarkin /db/prod/oracle/scott
+    tarkin --long --list /db/prod
+    tarkin --find scott
+
+It works in the same way as Ruby Client, so stores Security Token in ~/.tarkin for further use:
+
+    $ tarkin /db/prod/oracle/scott
+    Your Tarkin server URL: |http://tarkin.tg.pl| 
+    Your Tarkin account email: |user@example.com| 
+    Password for user@example.com: *********
+    t1ger
+
+To get a password give full path to the item:
+
+    $ tarkin /db/prod/oracle/scott
+    t1ger
+
+Directory listing (-l) may be short or long (-x):
+
+    $ tarkin -l /db/prod/oracle
+    C84PROD/ scott                                                                                                                                  
+    $ tarkin -xl /db/prod/oracle
+    2015-06-07 12:36:56    2015-06-07 12:36:56    C84PROD/   Production 
+    2015-06-07 12:38:27    2015-06-07 12:38:27    scott      The same user in all production databases
+
+Search for directories or items with -f or --find:
+    
+    $ tarkin -f sys
+    /db/prod/oracle/C84PROD/sys
+    /db/prod/oracle/C84PROD/sysadm
+
+
+=== Tarkin Shell
+
+Without any parameters, tarkin command-line tool runs the interactive shell, where you can surf on the Tarkin Server in similar way like Unix Shell does.
+
+    $ tarkin
+    http://tarkin.tg.pl/> 
+
+Command `ls` 

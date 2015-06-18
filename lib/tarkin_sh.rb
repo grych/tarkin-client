@@ -1,11 +1,14 @@
 require 'cmd'
 
 class TarkinSh < Cmd
+  SETTINGS_FILE = "#{Dir.home}/.tarkin_sh"
+  HIST_LINES = 100 # how many history lines to save
+
   prompt_with     :prompt_command
 
   handle TarkinClientException, :handle_client_exception
 
-  doc :ls, 'List contants of current directory
+  doc :ls, 'List contants of directory
       -l -- verbose (long) view'
   def do_ls(args)
     if args[:args].empty?
@@ -27,7 +30,9 @@ class TarkinSh < Cmd
     if args[:args].empty? 
       @cd = '/'
     else
-      @cd = full_dir args[:args].first
+      # TODO: warn if change to non-existing directory
+      dir = args[:args].first
+      @cd = full_dir dir
     end
   end
   def complete_cd(args)
@@ -74,8 +79,8 @@ class TarkinSh < Cmd
   def do_shell(line)
     line = line[:original]
     shell = ENV['SHELL']
-    puts shell
-    puts "**#{line}**"
+    write shell
+    write "**#{line}**"
     line.empty? ?  system(shell) : write(%x(#{line}).strip)
   end
 
@@ -87,7 +92,13 @@ class TarkinSh < Cmd
   end
 
   def setup
-    @cd = '/'
+    if File.exists? SETTINGS_FILE
+      settings = YAML::load_file SETTINGS_FILE
+      @cd = settings[:cd]
+      settings[:history].each { |h| Readline::HISTORY.push h }
+    else
+      @cd = '/'
+    end
   end
 
   def prompt_command
@@ -103,7 +114,8 @@ class TarkinSh < Cmd
   end
 
   def postloop
-    write "exiting..."
+    settings = { cd: @cd, history: Readline::HISTORY.to_a.last(HIST_LINES) }
+    File.open(SETTINGS_FILE, 'w') { |f| f.puts settings.to_yaml }
   end
 
   def tokenize_args(args)

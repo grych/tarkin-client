@@ -80,7 +80,20 @@ class TarkinClient
     end
   end
 
-  # Returns the contant of given directory
+  # Returns the content of given directory 
+  # Output is a hash containing:
+  # * directories => [ {:name, :id, :created_at, :updated_at, :description} ]
+  # * items =>   [ {:username, :id, :created_at, :updated_at, :description} ]
+  #
+  #   > tc.ls '/db/prod/oracle'
+  #   #> {:directories=>
+  #     [{:name=>"C84PROD", :id=>14, :created_at=>"2015-06-07T10:36:56.463Z", :updated_at=>"2015-06-07T10:36:56.463Z", :description=>"Production"}],
+  #     :items=>
+  #      [{:id=>6,
+  #       :username=>"scott",
+  #       :created_at=>"2015-06-07T10:38:27.981Z",
+  #       :updated_at=>"2015-06-07T10:38:27.981Z",
+  #       :description=>"The same user in all production databases"}]}
   def ls(path = '/')
     u = path.strip.chomp.sub(/(\/)+$/,'') # remove trailing slashes
     u = if u == '' then '_dir.json' else "_dir/#{u}.json" end
@@ -96,7 +109,13 @@ class TarkinClient
     end
   end
 
-  # Search for a string
+  # Search for a username or directory
+  # Input: a String to search, may contain wildcard (*)
+  # Output: array of hashes: [ { :label, :redirect_to }]
+  #
+  #   > tc.find 'sys'
+  #   #> [{:label=>"/db/prod/oracle/C84PROD/sys", :redirect_to=>"/db/prod/oracle/C84PROD#4"},
+  #       {:label=>"/db/prod/oracle/C84PROD/sysadm", :redirect_to=>"/db/prod/oracle/C84PROD#5"}]
   def find(term)
     response = @api_client.get("_find.json", form_data: {term: term})
     if response.ok?
@@ -106,7 +125,9 @@ class TarkinClient
     end
   end
 
-  # Returns token
+  # Returns string with valid token
+  #   > tc.token
+  #   #> "zvaY5...sds="
   def token
     @settings[:token]
   end
