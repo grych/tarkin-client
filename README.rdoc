@@ -1,6 +1,6 @@
 == Tarkin client
 
-{Tarkin Team Password Manager}[http://tarkin.tg.pl] command line client and Ruby client library. Find out the Tarkin Server on https://github.com/grych/tarkin
+{Tarkin Team Password Manager}[http://tarkin.tg.pl] command line client and Ruby client library. Find out the Tarkin Server source code on https://github.com/grych/tarkin
 
 === Ruby Client
 
@@ -70,6 +70,11 @@ To search for directories and items, use #find. You may use wildcars (*) in sear
     >> tc.find 'sys'
     #> [{:label=>"/db/prod/oracle/C84PROD/sys", :redirect_to=>"/db/prod/oracle/C84PROD#4"},
      {:label=>"/db/prod/oracle/C84PROD/sysadm", :redirect_to=>"/db/prod/oracle/C84PROD#5"}]
+
+==== Exceptions
+
+TarkinClient throws <tt>TarkinClientException</tt> with detailed information, when can't connect to the server, item is not found etc.
+
 
 === Command-line client
 
